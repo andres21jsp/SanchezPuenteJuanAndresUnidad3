@@ -3,62 +3,69 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class MovimientoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    private function validar(Request $request)
     {
-        //
+        return $request->validate([
+            'concepto' => 'required|string|max:150',
+            'monto' => 'required|numeric|min:0.01|max:9999999999.99|decimal:0,2',
+            'tipo' => 'required|in:ingreso,gasto',
+            'fecha' => 'required|date',
+            'descripcion' => 'nullable|string|max:1000',
+            'categoria_id' => [
+                'nullable',
+                Rule::exists('categorias', 'id')->where(
+                    fn ($query) => $query
+                        ->where('user_id', $request->user()->id)
+                        ->where('tipo', $request->tipo)
+                ),
+            ],
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->user()->movimientos()
+            ->create($this->validar($request));
+
+        return back()->with('success',
+            'Movimiento registrado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(Request $request, $id)
     {
-        //
+        $movimiento = $request->user()
+            ->movimientos()->findOrFail($id);
+
+        $categorias = $request->user()->categorias()->get();
+
+        return view('movimientos.edit', compact(
+            'movimiento', 'categorias'
+        ));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $movimiento = $request->user()
+            ->movimientos()->findOrFail($id);
+
+        $movimiento->update($this->validar($request));
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Movimiento actualizado.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Request $request, $id)
     {
-        //
-    }
+        $movimiento = $request->user()
+            ->movimientos()->findOrFail($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $movimiento->delete();
+
+        return back()->with('success',
+            'Movimiento eliminado correctamente.');
     }
 }
