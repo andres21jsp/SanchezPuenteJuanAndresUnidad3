@@ -204,6 +204,124 @@
 
             </div>
 
+            <!-- Convertidor de divisas -->
+<div class="bg-white rounded-2xl shadow p-6 mb-8">
+
+    <h2 class="text-xl font-bold text-slate-800">
+        Convertidor de divisas
+    </h2>
+
+    <p class="text-sm text-slate-500 mb-6">
+        Tipos de cambio de referencia proporcionados por Frankfurter API.
+    </p>
+
+    <form action="{{ route('divisas.convertir') }}" method="POST">
+
+        @csrf
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <div>
+                <label class="block text-sm font-medium mb-1">
+                    Cantidad
+                </label>
+
+                <input type="number" name="cantidad"
+                       min="0.01" step="0.01"
+                       placeholder="1000.00"
+                       class="w-full rounded-lg border-gray-300"
+                       required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">
+                    Moneda de origen
+                </label>
+
+                <select name="origen"
+                        class="w-full rounded-lg border-gray-300">
+
+                    <option value="MXN">MXN - Peso mexicano</option>
+                    <option value="USD">USD - Dólar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="CAD">CAD - Dólar canadiense</option>
+                    <option value="GBP">GBP - Libra esterlina</option>
+                    <option value="JPY">JPY - Yen japonés</option>
+
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">
+                    Moneda de destino
+                </label>
+
+                <select name="destino"
+                        class="w-full rounded-lg border-gray-300">
+
+                    <option value="USD">USD - Dólar</option>
+                    <option value="MXN">MXN - Peso mexicano</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="CAD">CAD - Dólar canadiense</option>
+                    <option value="GBP">GBP - Libra esterlina</option>
+                    <option value="JPY">JPY - Yen japonés</option>
+
+                </select>
+            </div>
+
+        </div>
+
+        <button type="submit"
+                class="mt-5 bg-emerald-600 hover:bg-emerald-700
+                       text-white px-6 py-3 rounded-lg font-semibold">
+            Convertir divisas
+        </button>
+
+    </form>
+
+    @if(session('conversion'))
+
+        @php
+            $c = session('conversion');
+        @endphp
+
+        <div class="mt-6 bg-emerald-50 border border-emerald-200
+                    rounded-xl p-6">
+
+            <p class="text-sm text-emerald-700">
+                Resultado de la conversión
+            </p>
+
+            <h3 class="text-3xl font-bold text-emerald-800 mt-2">
+
+                {{ number_format($c['cantidad'], 2) }}
+                {{ $c['origen'] }}
+
+                =
+
+                {{ number_format($c['resultado'], 2) }}
+                {{ $c['destino'] }}
+
+            </h3>
+
+            <p class="text-sm text-slate-600 mt-3">
+                Tipo de cambio: {{ $c['tasa'] }}
+            </p>
+
+            <p class="text-sm text-slate-600">
+                Fecha de referencia: {{ $c['fecha'] }}
+            </p>
+
+            <p class="text-xs text-slate-400 mt-2">
+                Fuente: Frankfurter API
+            </p>
+
+        </div>
+
+    @endif
+
+</div>
+
             <!-- Historial de movimientos -->
             <div class="bg-white rounded-2xl shadow p-6">
 
